@@ -115,5 +115,5 @@ if st.session_state.messages:
 # Clear Chat History (if needed)
 if st.button("Clear History"):
     st.session_state.messages = []
-    st.session_state.user_question = " "
+    st.session_state.user_question = ""
     st.experimental_rerun()
