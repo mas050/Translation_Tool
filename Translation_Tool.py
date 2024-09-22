@@ -158,8 +158,8 @@ def copy_to_clipboard_button(text_to_copy):
 
 
 # --- Streamlit App ---
-st.set_page_config(page_title="Agentic Helper", page_icon="🌍", layout="wide")
-st.title("🌍 Agentic Helper")
+st.set_page_config(page_title="Language Toolkit", page_icon="🌍", layout="wide")
+st.title("🌍 Language Toolkit")
 
 # Agent Selection
 st.session_state.selected_agents = st.selectbox("Task:", AGENTS_OPTIONS, key="agent_select")
@@ -205,14 +205,14 @@ if st.session_state.selected_agents == "Translator":
 else:
     if st.session_state.selected_agents == "Meaning":
         button_text = "Meaning"
+        user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question) 
     if st.session_state.selected_agents == "Expert Explanation":
         button_text = "Expert Explanation"
+        user_question = st.text_area("Concept to explain at expert level:", height=150, value=st.session_state.user_question) 
     if st.session_state.selected_agents == "Simple Explanation":
         button_text = "Simple Explanation"
+        user_question = st.text_area("Concept to explain simply:", height=150, value=st.session_state.user_question) 
    
-
-    user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question) 
-
     if st.button(button_text):
         if user_question:
             with st.spinner("Thinking..."):
