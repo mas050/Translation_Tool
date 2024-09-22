@@ -115,7 +115,7 @@ def expert_agent(user_question):
 def simple_explanation_agent(user_question):
     prompt = f"""
 
-    Explain {user_question} in the simplest way possible, as if you were talking to a 5-year-old. Your explanation should:
+    Explain {user_question} in the simplest way possible. Your explanation should:
 
     a) Avoid any technical language or jargon.
     b) Use simple words and short sentences.
