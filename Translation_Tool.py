@@ -354,8 +354,34 @@ if st.session_state.selected_agents == "Translator":
                 copy_to_clipboard_button(response_content)
 
 elif st.session_state.selected_agents == "Chain of Thoughts (CoT)":
+    st.write("Available Agents:")
+    st.markdown("""
+    * **Mathematical problem-solving:**  *Tackles equations, calculations, and mathematical concepts.*
+    * **Logical reasoning:** *Solves puzzles, analyzes arguments, and draws sound conclusions.*
+    * **General problem-solving:**  *Provides strategies and solutions for a variety of challenges.*
+    * **Ethical dilemmas:**  *Analyzes complex situations with moral implications.*
+    * **Programming and algorithm design:** *Assists with coding, debugging, and optimizing algorithms.*
+    * **Physics problems:**  *Solves problems related to motion, forces, energy, and more.*
+    * **Decision-making scenarios:** *Helps weigh options and make informed choices.*
+    * **Historical analysis:** *Interprets past events, trends, and their impact.*
+    * **Financial or investment decisions:** *Provides insights on financial matters and investment strategies.*
+    * **Philosophical inquiry:**  *Explores fundamental questions about existence, knowledge, and values.*
+    * **Scientific research and hypothesis testing:** *Assists with research design and data analysis.*
+    * **Literary analysis:**  *Interprets literature, themes, and literary devices.*
+    * **Medical diagnosis or treatment planning:** *Assists with understanding medical conditions and treatment options.*
+    * **Engineering and design problem-solving:**  *Provides solutions for engineering and design challenges.*
+    * **Legal analysis:**  *Interprets legal documents and concepts.*
+    * **Environmental sustainability solutions:**  *Suggests ways to reduce environmental impact.*
+    * **Supply chain and logistics optimization:**  *Streamlines supply chain operations.*
+    * **Data analysis and interpretation:**  *Extracts insights from data sets.*
+    * **Creative problem-solving or innovation:**  *Generates novel ideas and approaches.*
+    * **Strategic planning and business decisions:**  *Assists with developing business strategies and making informed decisions.*
+    """)
+
     button_text = "CoT Reasoning"
-    user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question) 
+    user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question)
+
+
     if st.button(button_text):
         if user_question:
             with st.spinner("Thinking..."):
