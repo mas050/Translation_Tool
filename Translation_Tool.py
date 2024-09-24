@@ -135,12 +135,141 @@ def simple_explanation_agent(user_question):
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"An error occurred during process: {e}" 
-
-def CoT_Reasoning(user_question):
+        return f"An error occurred during process: {e}"
+    
+def CoT_Categories(user_question):
     prompt = f"""
 
-        Please analyze the following user question. Break it down by identifying the main components, consider all possible outcomes, and provide a step-by-step explanation of your reasoning process.\
+        Classify the following user question into one of the categories based on the type of problem or reasoning it involves. The available categories are:
+
+        - Mathematical Problem Solving
+        - Logical Reasoning
+        - General Problem-Solving
+        - Ethical Dilemmas
+        - Programming and Algorithm Design
+        - Physics Problems
+        - Decision-Making Scenarios
+        - Historical Analysis
+        - Financial or Investment Decisions
+        - Philosophical Inquiry
+        - Scientific Research and Hypothesis Testing
+        - Literary Analysis
+        - Medical Diagnosis or Treatment Planning
+        - Engineering and Design Problem-Solving
+        - Legal Analysis
+        - Environmental Sustainability Solutions
+        - Supply Chain and Logistics Optimization
+        - Data Analysis and Interpretation
+        - Creative Problem-Solving or Innovation
+        - Strategic Planning and Business Decisions
+        
+        For classification, consider:
+
+        - Does the question involve calculations or math? → Choose 'Mathematical Problem Solving'
+        - Does it involve pattern recognition or logical deductions? → Choose 'Logical Reasoning'
+        - Is it a general problem requiring a multi-step solution? → Choose 'General Problem-Solving'
+        - Is there a moral or ethical dimension? → Choose 'Ethical Dilemmas'
+        - Does it involve writing or analyzing code? → Choose 'Programming and Algorithm Design'
+        - Does it relate to physics or scientific principles? → Choose 'Physics Problems'
+        - Is it about making a choice between alternatives? → Choose 'Decision-Making Scenarios'
+        - Does it involve analyzing past events? → Choose 'Historical Analysis'
+        - Does it relate to finance or investment decisions? → Choose 'Financial or Investment Decisions'
+        - Does it explore philosophical concepts or abstract questions? → Choose 'Philosophical Inquiry'
+        - Is the question about designing or conducting a scientific experiment, or testing a hypothesis? → Choose 'Scientific Research and Hypothesis Testing'
+        - Does it involve analyzing themes, characters, or literary devices in a work of literature? → Choose 'Literary Analysis'
+        - Is the question about diagnosing a medical condition or creating a treatment plan? → Choose 'Medical Diagnosis or Treatment Planning'
+        - Does it involve solving a problem through engineering or product design? → Choose 'Engineering and Design Problem-Solving'
+        - Is the question related to analyzing laws, legal cases, or judicial reasoning? → Choose 'Legal Analysis'
+        - Does it focus on creating a sustainable solution to an environmental issue? → Choose 'Environmental Sustainability Solutions'
+        - Does it involve optimizing a supply chain or improving logistics? → Choose 'Supply Chain and Logistics Optimization'
+        - Is the question about interpreting or analyzing a data set, statistics, or trends? → Choose 'Data Analysis and Interpretation'
+        - Does it involve developing creative or innovative solutions to a problem? → Choose 'Creative Problem-Solving or Innovation'
+        - Is the question about creating a strategic plan for business or management decisions? → Choose 'Strategic Planning and Business Decisions'
+
+        User Question: {user_question}
+
+        Your task: Identify which one and only one of the above categories above this question belongs. Do not output anything else than the category name.
+    """
+    try:
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model= "llama3-70b-8192", #"mixtral-8x7b-32768",
+            temperature=0,
+            max_tokens= 25, # 32000,
+            top_p=1
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"An error occurred during process: {e}"
+
+def classify_category(llm_classification):
+    # List of possible categories
+    categories = [
+        "mathematical problem solving",
+        "logical reasoning",
+        "general problem-solving",
+        "ethical dilemmas",
+        "programming and algorithm design",
+        "physics problems",
+        "decision-making scenarios",
+        "historical analysis",
+        "financial or investment decisions",
+        "philosophical inquiry",
+        "scientific research and hypothesis testing",
+        "literary analysis",
+        "medical diagnosis or treatment planning",
+        "engineering and design problem-solving",
+        "legal analysis",
+        "environmental sustainability solutions",
+        "supply chain and logistics optimization",
+        "data analysis and interpretation",
+        "creative problem-solving or innovation",
+        "strategic planning and business decisions"
+    ]
+    
+    # Convert the LLM classification to lowercase
+    classification_lower = llm_classification.lower()
+
+    # Check if the classification contains any of the category names
+    for category in categories:
+        if category in classification_lower:
+            return category
+    
+    # If no category matches, return 'General Problem-Solving'
+    return "general problem-solving"
+
+def get_prompt_by_category(category):
+    # Dictionary mapping categories to their corresponding prompts
+    category_prompts = {
+        "mathematical problem solving": "Solve the following math problem step by step. Start by identifying the relevant variables or relationships, explain the operations required at each step, and show your work until you reach the final solution.",
+        "logical reasoning": "For the following logical problem, break down the reasoning process step by step. Identify any assumptions, premises, and logical connections to derive the correct conclusion.",
+        "general problem-solving": "Solve this problem by first identifying the core issue, then explore possible solutions one by one, evaluating their effectiveness before proposing a final answer.",
+        "ethical dilemmas": "For the given ethical dilemma, break down the situation step by step. Identify the moral principles involved, evaluate the potential consequences of different actions, and explain the reasoning behind the final ethical decision.",
+        "programming and algorithm design": "Design an algorithm to solve the following problem step by step. Start by defining the input and output, then describe how each part of the algorithm should function, ensuring clarity in the logic behind each decision.",
+        "physics problems": "Solve the following physics problem step by step. First, list the known quantities and relevant equations, then describe how to apply them at each stage until you arrive at the final answer.",
+        "decision-making scenarios": "Walk through this decision-making scenario step by step. Start by listing the available options, evaluating their potential benefits and drawbacks, and then provide a reasoned choice based on the analysis.",
+        "historical analysis": "Examine this historical event step by step. First, outline the key events leading up to it, then explore the immediate and long-term consequences while connecting how each factor contributed to the overall outcome.",
+        "financial or investment decisions": "Break down the financial problem step by step. Begin by identifying key financial data, calculate the potential returns or risks of each option, and finally, provide a recommendation based on the analysis.",
+        "philosophical inquiry": "For the following philosophical question, think through each part of the problem step by step. Define key concepts, explore potential perspectives, and justify each conclusion as you build towards a thoughtful answer.",
+        "scientific research and hypothesis testing": "For the following scientific problem, break down the research process step by step. Start by identifying the hypothesis, explain the methods of experimentation or observation, analyze the data, and finally provide a conclusion based on the results.",
+        "literary analysis": "Analyze the following piece of literature step by step. First, identify the themes and literary devices used, then evaluate the characters and plot, and finally, provide an interpretation of the overall meaning or message.",
+        "medical diagnosis or treatment planning": "For the given medical case, diagnose the issue step by step. Start by analyzing the symptoms, review possible causes, and suggest appropriate diagnostic tests. Conclude by recommending the most suitable treatment plan.",
+        "engineering and design problem-solving": "Solve the following engineering design problem step by step. Begin by defining the specifications and constraints, then explore possible design alternatives, evaluate their feasibility, and finally propose a solution with clear justification.",
+        "legal analysis": "For the following legal issue, analyze the situation step by step. Identify relevant laws, consider the facts of the case, evaluate precedents, and conclude with a reasoned legal opinion or course of action.",
+        "environmental sustainability solutions": "For the following environmental issue, propose a sustainable solution step by step. Start by identifying the environmental impact, explore possible solutions, evaluate their effectiveness and feasibility, and conclude with a recommendation that balances environmental and economic concerns.",
+        "supply chain and logistics optimization": "Optimize the following supply chain problem step by step. Identify the key constraints, evaluate different supply chain models, assess cost, time, and resource efficiency, and propose an optimal solution.",
+        "data analysis and interpretation": "Analyze the following data set step by step. Begin by identifying the key variables, apply statistical or analytical methods, interpret the results, and finally provide insights or recommendations based on the analysis.",
+        "creative problem-solving or innovation": "For the following creative problem, think through each step of the creative process. Start by brainstorming potential solutions, evaluate each one for feasibility and impact, and propose an innovative solution, explaining the rationale behind it.",
+        "strategic planning and business decisions": "For the following business problem, develop a strategic plan step by step. Begin by identifying the business goals, analyze market trends and competition, evaluate possible strategies, and recommend the best course of action."
+    }
+    
+    # Return the corresponding prompt, or a default one if the category is not recognized
+    return category_prompts.get(category, category_prompts["general problem-solving"])
+
+def CoT_Reasoning(user_question,CoT_Prompt):
+    prompt = f"""
+
+        {CoT_Prompt}\
         
         Here is the user question:\
         {user_question}
@@ -156,8 +285,9 @@ def CoT_Reasoning(user_question):
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"An error occurred during process: {e}" 
+        return f"An error occurred during process: {e}"
     
+
 def copy_to_clipboard_button(text_to_copy):
     """Displays a "Copy to Clipboard" button and handles the copy functionality."""
     html(f"""
@@ -229,7 +359,17 @@ elif st.session_state.selected_agents == "Chain of Thoughts (CoT)":
     if st.button(button_text):
         if user_question:
             with st.spinner("Thinking..."):
-                translation = CoT_Reasoning(user_question)
+                CoT_Class = CoT_Categories(user_question)
+                CoT_Standardized_Class = classify_category(CoT_Class)
+                CoT_Prompt = get_prompt_by_category(CoT_Standardized_Class)
+
+                #st.write(CoT_Class)
+                #st.write("\n")
+                #st.write(CoT_Standardized_Class)
+                #st.write("\n")
+                #st.write(CoT_Prompt)
+
+                translation = CoT_Reasoning(user_question,CoT_Prompt)
         else:
             st.warning("Please enter some text to process.")
 
