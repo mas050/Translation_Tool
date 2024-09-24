@@ -9,7 +9,7 @@ os.environ["GROQ_API_KEY"] = "gsk_37z4ZG7YECcINJUhmDwDWGdyb3FYMpGtur9mOTj8HoEMBG
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 LANGUAGES_OPTIONS_INPUT = ["English","French","German","Italian","Portuguese","Hindi","Spanish","Thai"]
 LANGUAGES_OPTIONS_OUTPUT = ["French","English","German","Italian","Portuguese","Hindi","Spanish","Thai"]
-AGENTS_OPTIONS = ["Translator","Meaning","Expert Explanation","Simple Explanation"]
+AGENTS_OPTIONS = ["Translator","Meaning","Expert Explanation","Simple Explanation","Chain of Thoughts (CoT)"]
 
 
 # --- Session State Management ---
@@ -88,16 +88,16 @@ def meaning_agent(user_question):
 def expert_agent(user_question):
     prompt = f"""
 
-    Provide a detailed and expert-level explanation of {user_question}. Your response should:
+        Provide a detailed and expert-level explanation of {user_question}. Your response should:
 
-    a) Demonstrate a deep understanding of the topic by explaining both fundamental and advanced aspects.
-    b) Be clear, logical, and well-structured. Break down complex ideas into simple terms where necessary, but also include precise terminology when appropriate.
-    c) Use evidence, research, or real-world examples to support the explanation. Reference any relevant theories, studies, or practical applications.
-    d) Anticipate potential questions or misconceptions and address them proactively.
-    e) Place the topic in a broader context, showing how it relates to larger trends or concepts.
-    f) Acknowledge any limitations or alternative viewpoints where relevant.
-    g) Avoid unnecessary jargon, but don't oversimplify the key concepts.
-    h) End your explanation with a summary that highlights the main points, ensuring the explanation is both accessible and authoritative.
+        a) Demonstrate a deep understanding of the topic by explaining both fundamental and advanced aspects.
+        b) Be clear, logical, and well-structured. Break down complex ideas into simple terms where necessary, but also include precise terminology when appropriate.
+        c) Use evidence, research, or real-world examples to support the explanation. Reference any relevant theories, studies, or practical applications.
+        d) Anticipate potential questions or misconceptions and address them proactively.
+        e) Place the topic in a broader context, showing how it relates to larger trends or concepts.
+        f) Acknowledge any limitations or alternative viewpoints where relevant.
+        g) Avoid unnecessary jargon, but don't oversimplify the key concepts.
+        h) End your explanation with a summary that highlights the main points, ensuring the explanation is both accessible and authoritative.
     
     """
     try:
@@ -115,14 +115,14 @@ def expert_agent(user_question):
 def simple_explanation_agent(user_question):
     prompt = f"""
 
-    Explain {user_question} in the simplest way possible. Your explanation should:
+        Explain {user_question} in the simplest way possible. Your explanation should:
 
-    a) Avoid any technical language or jargon.
-    b) Use simple words and short sentences.
-    c) Provide everyday examples or analogies that are easy to understand.
-    d) Focus on the basic idea without getting into complex details.
-    e) Make the explanation fun or engaging, if possible.
-    f) End with a simple summary that reinforces the main point in a way that’s easy to remember."
+        a) Avoid any technical language or jargon.
+        b) Use simple words and short sentences.
+        c) Provide everyday examples or analogies that are easy to understand.
+        d) Focus on the basic idea without getting into complex details.
+        e) Make the explanation fun or engaging, if possible.
+        f) End with a simple summary that reinforces the main point in a way that is easy to remember.
     
     """
     try:
@@ -137,6 +137,27 @@ def simple_explanation_agent(user_question):
     except Exception as e:
         return f"An error occurred during process: {e}" 
 
+def CoT_Reasoning(user_question):
+    prompt = f"""
+
+        Please analyze the following user question. Break it down by identifying the main components, consider all possible outcomes, and provide a step-by-step explanation of your reasoning process.\
+        
+        Here is the user question:\
+        {user_question}
+    
+    """
+    try:
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model= "llama3-70b-8192", #"mixtral-8x7b-32768",
+            temperature=0,
+            max_tokens= 8100, # 32000,
+            top_p=1
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"An error occurred during process: {e}" 
+    
 def copy_to_clipboard_button(text_to_copy):
     """Displays a "Copy to Clipboard" button and handles the copy functionality."""
     html(f"""
@@ -186,6 +207,35 @@ if st.session_state.selected_agents == "Translator":
 
         else:
             st.warning("Please enter some text to translate.")
+
+    # Clear Chat History (if needed)
+    if st.button("Clear History"):
+        st.session_state.messages = []
+        st.session_state["user_question"] = " "
+        st.experimental_rerun() 
+
+    # Display messages 
+    if st.session_state.messages:
+        with st.chat_message(st.session_state.messages[-1]["role"]):
+            response_content = st.session_state.messages[-1]["content"]
+            st.markdown(response_content, unsafe_allow_html=True) 
+            if st.session_state.messages[-1]["role"] == "assistant":
+                # Copy to Clipboard button (factored out for reusability)
+                copy_to_clipboard_button(response_content)
+
+elif st.session_state.selected_agents == "Chain of Thoughts (CoT)":
+    button_text = "CoT Reasoning"
+    user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question) 
+    if st.button(button_text):
+        if user_question:
+            with st.spinner("Thinking..."):
+                translation = CoT_Reasoning(user_question)
+        else:
+            st.warning("Please enter some text to process.")
+
+        # Append the user question and translation to the message history
+        st.session_state.messages.append({"role": "user", "content": user_question})
+        st.session_state.messages.append({"role": "assistant", "content": translation})
 
     # Clear Chat History (if needed)
     if st.button("Clear History"):
