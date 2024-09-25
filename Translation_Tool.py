@@ -313,8 +313,9 @@ st.set_page_config(page_title="Language Toolkit", page_icon="🌍", layout="wide
 st.title("🌍 Language Toolkit")
 
 # Agent Selection
-st.session_state.selected_agents = st.selectbox("Task:", AGENTS_OPTIONS, key="agent_select")
-
+st.subheader("Select a Task:")
+st.session_state.selected_agents = st.selectbox("", AGENTS_OPTIONS, key="agent_select")
+st.write("\n")
 
 # Different UX behavior based on the task selected by the user
 if st.session_state.selected_agents == "Translator":
@@ -354,32 +355,53 @@ if st.session_state.selected_agents == "Translator":
                 copy_to_clipboard_button(response_content)
 
 elif st.session_state.selected_agents == "Chain of Thoughts (CoT)":
-    st.write("Available Agents:")
-    st.markdown("""
-    * **Mathematical problem-solving:**  *Tackles equations, calculations, and mathematical concepts.*
-    * **Logical reasoning:** *Solves puzzles, analyzes arguments, and draws sound conclusions.*
-    * **General problem-solving:**  *Provides strategies and solutions for a variety of challenges.*
-    * **Ethical dilemmas:**  *Analyzes complex situations with moral implications.*
-    * **Programming and algorithm design:** *Assists with coding, debugging, and optimizing algorithms.*
-    * **Physics problems:**  *Solves problems related to motion, forces, energy, and more.*
-    * **Decision-making scenarios:** *Helps weigh options and make informed choices.*
-    * **Historical analysis:** *Interprets past events, trends, and their impact.*
-    * **Financial or investment decisions:** *Provides insights on financial matters and investment strategies.*
-    * **Philosophical inquiry:**  *Explores fundamental questions about existence, knowledge, and values.*
-    * **Scientific research and hypothesis testing:** *Assists with research design and data analysis.*
-    * **Literary analysis:**  *Interprets literature, themes, and literary devices.*
-    * **Medical diagnosis or treatment planning:** *Assists with understanding medical conditions and treatment options.*
-    * **Engineering and design problem-solving:**  *Provides solutions for engineering and design challenges.*
-    * **Legal analysis:**  *Interprets legal documents and concepts.*
-    * **Environmental sustainability solutions:**  *Suggests ways to reduce environmental impact.*
-    * **Supply chain and logistics optimization:**  *Streamlines supply chain operations.*
-    * **Data analysis and interpretation:**  *Extracts insights from data sets.*
-    * **Creative problem-solving or innovation:**  *Generates novel ideas and approaches.*
-    * **Strategic planning and business decisions:**  *Assists with developing business strategies and making informed decisions.*
-    """)
+    #st.write("Available Agents:")
+    st.subheader("Available Agents:")
+    
+    # Create an expander with a label
+    with st.expander("Available Agents (Click to Expand/Collapse)"):
+        
+        # Style the markdown within the expander for better visual separation
+        st.markdown("""
+        <style>
+        .expander-content ul {
+            margin-top: -15px; /* Adjust as needed */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # Your original markdown content
+        st.markdown("""
+        * **Creative problem-solving or innovation:**  *Generates novel ideas and approaches.*
+        * **Data analysis and interpretation:**  *Extracts insights from data sets.*
+        * **Decision-making scenarios:** *Helps weigh options and make informed choices.*
+        * **Engineering and design problem-solving:**  *Provides solutions for engineering and design challenges.*
+        * **Environmental sustainability solutions:**  *Suggests ways to reduce environmental impact.*
+        * **Ethical dilemmas:**  *Analyzes complex situations with moral implications.*
+        * **Financial or investment decisions:** *Provides insights on financial matters and investment strategies.*
+        * **General problem-solving:**  *Provides strategies and solutions for a variety of challenges.*
+        * **Historical analysis:** *Interprets past events, trends, and their impact.*
+        * **Legal analysis:**  *Interprets legal documents and concepts.*
+        * **Literary analysis:**  *Interprets literature, themes, and literary devices.*
+        * **Logical reasoning:** *Solves puzzles, analyzes arguments, and draws sound conclusions.*
+        * **Mathematical problem-solving:**  *Tackles equations, calculations, and mathematical concepts.*
+        * **Medical diagnosis or treatment planning:** *Assists with understanding medical conditions and treatment options.* 
+        * **Philosophical inquiry:**  *Explores fundamental questions about existence, knowledge, and values.*
+        * **Physics problems:**  *Solves problems related to motion, forces, energy, and more.*
+        * **Programming and algorithm design:** *Assists with coding, debugging, and optimizing algorithms.*
+        * **Scientific research and hypothesis testing:** *Assists with research design and data analysis.*
+        * **Strategic planning and business decisions:**  *Assists with developing business strategies and making informed decisions.*
+        * **Supply chain and logistics optimization:**  *Streamlines supply chain operations.*
+        """)
 
     button_text = "CoT Reasoning"
-    user_question = st.text_area("Text to Process:", height=150, value=st.session_state.user_question)
+
+    st.subheader("How can I help you today?")
+
+    # Using st.markdown with HTML tags
+    #st.markdown("<h2>How can I help you today?</h2>", unsafe_allow_html=True)
+
+    user_question = st.text_area("", height=150, value=st.session_state.user_question)
 
 
     if st.button(button_text):
