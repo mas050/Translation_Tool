@@ -5,7 +5,7 @@ from streamlit.components.v1 import html
 
 
 # --- Configuration ---
-os.environ["GROQ_API_KEY"] = "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"
+os.environ["GROQ_API_KEY"] = "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"
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 LANGUAGES_OPTIONS_INPUT = ["English","French","German","Italian","Portuguese","Hindi","Spanish","Thai"]
 LANGUAGES_OPTIONS_OUTPUT = ["French","English","German","Italian","Portuguese","Hindi","Spanish","Thai"]
